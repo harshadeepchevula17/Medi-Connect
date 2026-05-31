@@ -47,6 +47,7 @@ public class AuthService {
                 .consultationFee(request.getConsultationFee())
                 .profilePhoto(request.getProfilePhoto())
                 .emailVerified(true)
+                .onboardingComplete(true)
                 .build();
 
         userRepository.save(user);

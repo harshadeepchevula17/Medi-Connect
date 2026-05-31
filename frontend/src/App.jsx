@@ -9,7 +9,6 @@ import AdminDashboard from './components/dashboard/AdminDashboard'
 import VideoConsultation from './components/consultation/VideoConsultation'
 import AiChat from './components/ai/AiChat'
 import ProfileSettings from './components/profile/ProfileSettings'
-import OnboardingWizard from './components/onboarding/OnboardingWizard'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import AnimatedBackground from './components/three/AnimatedBackground'
@@ -40,7 +39,6 @@ export default function App() {
             <Route path="/video-consultation/:appointmentId" element={<ProtectedRoute><VideoConsultation /></ProtectedRoute>} />
             <Route path="/ai-assistant" element={<ProtectedRoute><AiChat /></ProtectedRoute>} />
             <Route path="/profile/settings" element={<ProtectedRoute><ProfileSettings /></ProtectedRoute>} />
-            <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
           </Routes>
         </div>
       </div>

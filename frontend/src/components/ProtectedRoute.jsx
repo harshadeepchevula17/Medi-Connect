@@ -18,10 +18,6 @@ export default function ProtectedRoute({ children, role }) {
 
   if (!user) return <Navigate to="/login" replace />
 
-  if (!user.onboardingComplete && location.pathname !== '/onboarding') {
-    return <Navigate to="/onboarding" replace />
-  }
-
   if (role && user.role !== role) {
     const dashboard = user.role === 'ADMIN' ? '/dashboard/admin' : user.role === 'DOCTOR' ? '/dashboard/doctor' : '/dashboard/patient'
     return <Navigate to={dashboard} replace />
