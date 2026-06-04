@@ -6,10 +6,12 @@ import com.mediconnect.dto.ProfileUpdateRequest;
 import com.mediconnect.dto.SignupRequest;
 import com.mediconnect.service.AuthService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -33,12 +35,18 @@ public class AuthController {
 
     @GetMapping("/profile")
     public ResponseEntity<AuthResponse> profile(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
         return ResponseEntity.ok(authService.getProfile(userDetails.getUsername()));
     }
 
     @PutMapping("/profile")
     public ResponseEntity<AuthResponse> updateProfile(@AuthenticationPrincipal UserDetails userDetails,
                                                        @Valid @RequestBody ProfileUpdateRequest request) {
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
         return ResponseEntity.ok(authService.updateProfile(userDetails.getUsername(), request));
     }
 }

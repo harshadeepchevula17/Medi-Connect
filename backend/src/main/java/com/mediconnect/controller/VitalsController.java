@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -24,6 +26,7 @@ public class VitalsController {
 
     @GetMapping("/my")
     public ResponseEntity<?> getMyVitals(@AuthenticationPrincipal UserDetails user) {
+        if (user == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
         User patient = userRepository.findByEmail(user.getUsername()).orElse(null);
         if (patient == null) return ResponseEntity.badRequest().body(Map.of("error", "Patient not found"));
         return ResponseEntity.ok(vitalsRepository.findByPatientIdOrderByRecordedAtDesc(patient.getId()));

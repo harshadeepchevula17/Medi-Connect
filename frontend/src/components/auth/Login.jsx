@@ -2,13 +2,31 @@ import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../../context/AuthContext'
-import GlassCard from '../ui/GlassCard'
-import MagneticButton from '../ui/MagneticButton'
-import FloatingParticles from '../three/FloatingParticles'
+import RotatingHuman from '../../components/RotatingHuman'
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  User,
+  Stethoscope,
+  CalendarCheck,
+  FileText,
+  Video,
+  ShieldCheck,
+} from 'lucide-react'
 
 const roles = [
-  { id: 'PATIENT', label: 'Patient', icon: '👤', desc: 'Access your health records, book consultations, and track vitals' },
-  { id: 'DOCTOR', label: 'Doctor', icon: '👨‍⚕️', desc: 'Manage appointments, review patient cases, and conduct consultations' },
+  { id: 'PATIENT', label: 'Patient', icon: User, desc: 'Access your health records, book consultations, and track vitals.' },
+  { id: 'DOCTOR', label: 'Doctor', icon: Stethoscope, desc: 'Manage appointments, review patient cases, and conduct consultations.' },
+]
+
+const features = [
+  { icon: CalendarCheck, title: 'Smart scheduling', sub: 'Book appointments in under 60 seconds' },
+  { icon: FileText, title: 'Health records', sub: 'All your medical history in one place' },
+  { icon: Video, title: 'Video consultations', sub: 'See a doctor from anywhere, anytime' },
+  { icon: ShieldCheck, title: 'HIPAA compliant', sub: 'Your data is always private and secure' },
 ]
 
 export default function Login() {
@@ -17,141 +35,164 @@ export default function Login() {
   const [role, setRole] = useState(defaultRole)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const { login } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError('')
+
     try {
       const data = await login({ email, password })
-      // Special-case: seeded admin account 'admin' should always land on admin dashboard
-      if ((email || '').toLowerCase() === 'admin') {
-        navigate('/dashboard/admin')
-        return
-      }
+      const nextRole = data.role?.toUpperCase()
 
-      const userRole = data.role?.toLowerCase()
-      if (userRole === 'admin') navigate('/dashboard/admin')
-      else if (userRole === 'doctor') navigate('/dashboard/doctor')
+      if (nextRole === 'ADMIN') navigate('/dashboard/admin')
+      else if (nextRole === 'DOCTOR') navigate('/dashboard/doctor')
       else navigate('/dashboard/patient')
     } catch (err) {
-      setError(err.response?.data?.error || err.response?.data?.message || 'Login failed')
+      setError(err?.response?.data?.error || err?.response?.data?.message || 'Login failed')
     }
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-white">
-      <div className="absolute inset-0 bg-gradient-to-br from-bg-light via-white to-bg-light" />
-      <FloatingParticles count={1000} color="#0ea5e9" size={0.008} spread={2} opacity={0.15} />
-      <div className="absolute inset-0 mesh-gradient opacity-40" />
+  const activeRole = roles.find((item) => item.id === role)
 
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/[0.04] rounded-full blur-[180px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-secondary/[0.04] rounded-full blur-[180px]" />
+  return (
+    <div className="min-h-screen grid lg:grid-cols-2 overflow-hidden bg-[#f5f7fb]">
+      <div className="relative hidden lg:flex flex-col justify-start p-10 xl:p-14 overflow-hidden text-white" style={{ background: 'linear-gradient(160deg, #0a3d5c 0%, #0c5a82 45%, #0e72a8 100%)' }}>
+        <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute -bottom-16 -left-12 w-56 h-56 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute top-1/2 -right-8 w-36 h-36 rounded-full bg-white/[0.04] pointer-events-none" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <img src="/logo.png" alt="MediConnect" className="w-10 h-10 object-contain" />
+          <span className="text-white text-lg font-semibold tracking-tight">MediConnect</span>
+        </div>
+
+  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} className="relative z-10 mt-8 max-w-md">
+          <h1 className="text-white text-3xl xl:text-4xl font-bold leading-snug tracking-tight mb-4">
+            Healthcare at<br />your fingertips
+          </h1>
+          <p className="text-white/60 text-sm leading-relaxed mb-9 max-w-xs">
+            Connect with doctors, manage appointments, and access your health records in one secure platform.
+          </p>
+
+          <div className="space-y-4">
+            {features.map((feature) => {
+              const Icon = feature.icon
+              return (
+                <div key={feature.title} className="flex items-start gap-4">
+                  <div className="w-9 h-9 rounded-lg bg-white/8 border border-white/10 flex items-center justify-center text-cyan-300 shrink-0">
+                    <Icon size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-white/90">{feature.title}</h3>
+                    <p className="text-xs text-white/48 mt-1">{feature.sub}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </motion.div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.17, 0.67, 0.83, 0.67] }}
-        className="relative z-10 w-full max-w-md px-6"
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="flex items-center gap-2 justify-center mb-8"
-        >
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="relative">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary via-sky-400 to-secondary flex items-center justify-center shadow-glow-primary group-hover:shadow-glow-secondary transition-all duration-500 group-hover:scale-105 relative z-10">
-                <span className="text-white font-bold text-xl">M</span>
+      <div className="flex items-center justify-center p-6 md:p-10 xl:p-14">
+        <div className="w-full max-w-md">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="bg-white rounded-[28px] shadow-[0_20px_60px_rgba(15,23,42,0.08)] border border-slate-100 p-7 md:p-8">
+            <div className="mb-7">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-50 text-cyan-700 text-xs font-medium mb-4">
+                <ArrowRight size={14} /> Secure sign-in
               </div>
-              <div className="absolute inset-0 rounded-2xl bg-primary/20 blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-500" />
+              <h2 className="text-2xl font-semibold text-slate-900 tracking-tight">Welcome back</h2>
+              <p className="text-sm text-slate-500 mt-1">Sign in to your MediConnect account</p>
             </div>
-            <span className="font-display text-2xl font-bold gradient-text">MediConnect</span>
-          </Link>
-        </motion.div>
 
-        <GlassCard glass="premium" depth className="p-8 relative overflow-hidden">
-          <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/[0.04] rounded-full blur-[60px]" />
+            <div className="flex p-1 bg-slate-100 rounded-2xl mb-5">
+              {roles.map((item) => {
+                const Icon = item.icon
+                const selected = role === item.id
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setRole(item.id)}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all ${selected ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  >
+                    <Icon size={16} />
+                    {item.label}
+                  </button>
+                )
+              })}
+            </div>
 
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <h2 className="text-3xl font-bold gradient-text">Welcome back</h2>
-            <p className="text-sm text-text-tertiary mt-1 mb-6">{roles.find(r => r.id === role)?.desc}</p>
-          </motion.div>
+            <div className="mb-6 rounded-2xl border border-cyan-100 bg-cyan-50/70 px-4 py-3 text-xs leading-relaxed text-cyan-800">
+              {activeRole?.desc}
+            </div>
 
-          <div className="flex gap-2 mb-6 bg-bg-subtle rounded-2xl p-1.5 border border-black/[0.04]">
-            {roles.map((r) => (
-              <button key={r.id} onClick={() => setRole(r.id)}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-300 ${
-                  role === r.id
-                    ? 'bg-gradient-to-r from-primary/20 to-secondary/20 text-primary border border-primary/20 shadow-premium'
-                    : 'text-text-tertiary hover:text-text-secondary border border-transparent'
-                }`}
+            {error && (
+              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                {error}
+              </div>
+            )}
+
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+                    placeholder="name@example.com"
+                    autoComplete="email"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-11 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100"
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((value) => !value)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-400">Use your registered email and password.</span>
+                <Link to="/signup" className="font-medium text-cyan-700 hover:text-cyan-800">
+                  Create account
+                </Link>
+              </div>
+
+              <button
+                type="submit"
+                className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3.5 text-sm font-medium text-white transition hover:bg-slate-800 active:scale-[0.99]"
               >
-                <span className="text-lg">{r.icon}</span>
-                {r.label}
+                Sign in as {role === 'PATIENT' ? 'Patient' : 'Doctor'}
+                <ArrowRight size={16} />
               </button>
-            ))}
-          </div>
-
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10, height: 0 }}
-              animate={{ opacity: 1, y: 0, height: 'auto' }}
-              className="text-red-500 text-sm mb-4 p-3 rounded-xl bg-red-50 border border-red-200"
-            >
-              {error}
-            </motion.div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
-              <label className="block text-xs font-medium text-text-tertiary uppercase tracking-wider mb-1.5">Email Address</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                className="input-premium w-full"
-                placeholder="you@example.com" required />
-            </motion.div>
-            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
-              <label className="block text-xs font-medium text-text-tertiary uppercase tracking-wider mb-1.5">Password</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                className="input-premium w-full"
-                placeholder="••••••••" required />
-              <div className="flex justify-end mt-2">
-                <Link to="/forgot-password" className="text-xs text-primary/60 hover:text-primary transition-colors">Forgot password?</Link>
-              </div>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-              <MagneticButton type="submit" variant="primary" className="w-full py-3.5 text-sm">
-                Sign In as {roles.find(r => r.id === role)?.label}
-              </MagneticButton>
-            </motion.div>
-          </form>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="relative mt-8"
-          >
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-black/[0.06]" />
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="px-4 bg-white text-text-tertiary">New to MediConnect?</span>
-            </div>
+            </form>
           </motion.div>
-
-          <p className="text-center text-sm mt-6">
-            <Link to={`/signup?role=${role.toLowerCase()}`} className="text-text-tertiary hover:text-primary transition-colors">
-              Create an account <span className="text-primary">→</span>
-            </Link>
-          </p>
-        </GlassCard>
-      </motion.div>
+        </div>
+      </div>
     </div>
   )
 }

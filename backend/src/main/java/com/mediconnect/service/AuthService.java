@@ -8,8 +8,10 @@ import com.mediconnect.model.Role;
 import com.mediconnect.model.User;
 import com.mediconnect.repository.UserRepository;
 import com.mediconnect.security.JwtTokenProvider;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AuthService {
@@ -77,14 +79,14 @@ public class AuthService {
 
     public AuthResponse getProfile(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"));
 
         return toAuthResponse(user, null);
     }
 
     public AuthResponse updateProfile(String email, ProfileUpdateRequest request) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized"));
 
         if (request.getPhone() != null) user.setPhone(request.getPhone());
         if (request.getGender() != null) user.setGender(request.getGender());

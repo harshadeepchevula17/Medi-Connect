@@ -45,6 +45,12 @@ export const reviewAPI = {
   getByDoctor: (doctorId) => api.get(`/reviews/doctor/${doctorId}`),
 }
 
+/* ─── Admin ─── */
+export const adminAPI = {
+  getUsers: (role) => api.get('/admin/users', { params: { role } }),
+  deleteUser: (id) => api.delete(`/admin/users/${id}`),
+}
+
 /* ─── Dashboards ─── */
 export const dashboardAPI = {
   getPatient: () => api.get('/dashboard/patient'),
@@ -59,6 +65,7 @@ export const appointmentAPI = {
   getPendingForDoctor: () => api.get('/appointments/doctor/pending'),
   getById: (id) => api.get(`/appointments/${id}`),
   getMyAppointments: () => api.get('/appointments/my'),
+  list: () => api.post('/appointments/list'),
 }
 
 export const vitalsAPI = {

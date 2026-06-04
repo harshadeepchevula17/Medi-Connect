@@ -37,6 +37,14 @@ export default function PatientDashboard() {
     { id: 'ai-assistant', label: 'AI Assistant', icon: '🤖' },
   ]
 
+  const getMenuBadge = (id) => {
+    if (id === 'overview') return dashData?.upcomingAppointments || 0
+    if (id === 'consultations') return (dashData?.recentConsultations || []).length || (dashData?.allConsultations || []).length
+    if (id === 'records') return dashData?.medicalRecords || 0
+    if (id === 'prescriptions') return dashData?.activePrescriptions || 0
+    return 0
+  }
+
   const cards = [
     { label: 'Upcoming Appointments', value: dashData?.upcomingAppointments || 0, icon: '📅', color: 'from-primary' },
     { label: 'Medical Records', value: dashData?.medicalRecords || 0, icon: '📋', color: 'from-secondary' },
@@ -380,6 +388,18 @@ export default function PatientDashboard() {
 
   useEffect(() => { fetchDoctors() }, [])
 
+  // ensure no default body margin creates gap above header
+  useEffect(() => {
+    const prevBodyMargin = document.body.style.margin || ''
+    const prevHtmlMargin = document.documentElement.style.margin || ''
+    document.body.style.margin = '0'
+    document.documentElement.style.margin = '0'
+    return () => {
+      document.body.style.margin = prevBodyMargin
+      document.documentElement.style.margin = prevHtmlMargin
+    }
+  }, [])
+
   const handleBook = async () => {
     if (!user) { navigate('/login'); return }
     setBooking(true)
@@ -514,13 +534,19 @@ export default function PatientDashboard() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-black/[0.04] shadow-premium">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-              <span className="text-white font-bold text-sm">M</span>
+            <img src="/logo.png" alt="MediConnect" className="w-8 h-8 object-contain" />
+            <div>
+              <div className="font-semibold text-sm text-text-primary">Patient Dashboard</div>
+              {connected && <div className="text-[10px] text-green-500">● Live synced</div>}
             </div>
-            <span className="font-semibold text-sm text-text-primary">Patient Dashboard</span>
-            {connected && <span className="w-2 h-2 rounded-full bg-green-500" title="Live connected" />}
           </div>
+
           <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-3">
+              <input placeholder="Search records, doctors..." className="input-premium px-3 py-2 min-w-[260px]" />
+              <button onClick={() => setActiveTab('find-doctors')} className="px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-white text-sm">Book Appointment</button>
+            </div>
+
             <span className="badge-premium text-[10px]">
               <span className="live-dot" />
               Live
@@ -533,7 +559,18 @@ export default function PatientDashboard() {
       </nav>
 
       <div className="relative z-10 pt-16 flex">
-        <aside className="hidden lg:flex flex-col w-64 h-[calc(100vh-64px)] sticky top-16 border-r border-black/[0.04] bg-white/40 backdrop-blur-sm p-4 gap-1">
+        <aside className="hidden lg:flex flex-col w-64 h-[calc(100vh-64px)] sticky top-16 border-r border-black/[0.04] bg-white/40 backdrop-blur-sm p-4 gap-3">
+          <div className="rounded-2xl bg-white/80 p-4 border border-black/[0.03]">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">{(user?.name || 'P')?.split(' ')[0]?.[0] || 'P'}</div>
+              <div className="min-w-0">
+                <div className="text-sm font-semibold text-text-primary truncate">{user?.name || 'Patient'}</div>
+                <div className="text-xs text-text-tertiary">Patient ID · #{dashData?.patientId || 'MED-00421'}</div>
+                <div className="text-xs mt-2 inline-flex items-center gap-2 text-green-600 bg-green-50 px-2 py-1 rounded">Verified Patient</div>
+              </div>
+            </div>
+          </div>
+
           {menu.map((item) => (
             <button
               key={item.id}
@@ -545,7 +582,10 @@ export default function PatientDashboard() {
               }`}
             >
               <span>{item.icon}</span>
-              {item.label}
+              <span className="truncate">{item.label}</span>
+              {getMenuBadge(item.id) > 0 && (
+                <span className="ml-auto text-xs px-2 py-1 rounded-full bg-black/[0.06] text-text-primary">{getMenuBadge(item.id)}</span>
+              )}
             </button>
           ))}
         </aside>

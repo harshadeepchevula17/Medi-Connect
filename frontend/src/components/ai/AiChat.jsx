@@ -54,9 +54,7 @@ export default function AiChat() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-midnight/90 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-neon to-cyber flex items-center justify-center">
-              <span className="text-midnight font-bold text-sm">M</span>
-            </div>
+            <img src="/logo.png" alt="MediConnect" className="w-8 h-8 object-contain" />
             <span className="font-semibold text-sm">MediAssist AI</span>
           </div>
           <span className="badge-glow text-[10px]">

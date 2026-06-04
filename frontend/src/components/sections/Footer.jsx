@@ -59,9 +59,7 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4 group">
               <div className="relative">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center relative z-10 shadow-glow-primary">
-                  <span className="text-white font-bold text-sm">M</span>
-                </div>
+                <img src="/logo.png" alt="MediConnect" className="w-8 h-8 object-contain relative z-10" />
               </div>
               <span className="font-display text-lg font-bold text-text-primary">
                 medi-<span className="text-primary">connect</span>
