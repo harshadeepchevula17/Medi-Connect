@@ -28,7 +28,7 @@ FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-COPY --from=backend-build /app/target/*.jar app.jar
+COPY --from=frontend-build /frontend/dist ./src/main/resources/static
 
 EXPOSE 8080
 
