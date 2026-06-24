@@ -1,4 +1,4 @@
-# Build React frontend
+# ---------------- FRONTEND (VITE) ----------------
 FROM node:20 AS frontend-build
 
 WORKDIR /frontend
@@ -7,28 +7,31 @@ COPY frontend/package*.json ./
 RUN npm install
 
 COPY frontend/ .
+
+ENV CI=false
 RUN npm run build
 
-# Build Spring Boot backend
+
+# ---------------- BACKEND (SPRING BOOT) ----------------
 FROM maven:3.9-eclipse-temurin-21 AS backend-build
 
 WORKDIR /app
 
-COPY backend/pom.xml .
+COPY backend/pom.xml ./
 COPY backend/src ./src
-
-# Copy React build into Spring Boot static resources
-RUN mkdir -p src/main/resources/static
-COPY --from=frontend-build /frontend/build ./src/main/resources/static
 
 RUN mvn clean package -DskipTests
 
-# Runtime image
+
+# ---------------- RUNTIME ----------------
 FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-COPY --from=frontend-build /frontend/dist ./src/main/resources/static
+COPY --from=backend-build /app/target/*.jar app.jar
+
+# Copy React build into Spring Boot static folder
+COPY --from=frontend-build /frontend/dist ./static
 
 EXPOSE 8080
 
