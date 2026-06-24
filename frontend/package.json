@@ -14,6 +14,8 @@
     "@react-three/fiber": "^8.15.0",
     "@stomp/stompjs": "^7.0.0",
     "axios": "^1.6.0",
+        "lucide-react": "^1.17.0",
+
     
     "framer-motion": "^10.18.0",
     "gsap": "^3.12.0",
